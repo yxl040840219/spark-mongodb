@@ -18,7 +18,9 @@
 
 package com.stratio.deep.mongodb.rdd
 
-import com.mongodb.casbah.Imports._
+//import com.mongodb.casbah.Imports._
+
+import com.mongodb.{ServerAddress, DBObject}
 import com.stratio.deep.DeepConfig
 import com.stratio.deep.mongodb.partitioner.{MongodbPartition, MongodbPartitioner}
 import org.apache.spark.rdd.RDD

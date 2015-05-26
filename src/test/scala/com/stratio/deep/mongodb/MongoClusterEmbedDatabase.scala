@@ -1,7 +1,7 @@
 package com.stratio.deep.mongodb
 
-import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.{ServerAddress, DBCollection, MongoClient, DBObject}
+//import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb._
 import de.flapdoodle.embed.mongo.config._
 import de.flapdoodle.embed.mongo.distribution.Version
 import de.flapdoodle.embed.mongo.tests.MongosSystemForTestFactory
@@ -91,7 +91,8 @@ trait MongoClusterEmbedDatabase {
     f: MongosSystemForTestFactory => T): T = {
     system.start()
     val mongo = client()
-    mongo.getDB(database).command(MongoDBObject("chunksize" -> chunkSize))
+    val mongoObj = new BasicDBObject(Map("chunksize" -> chunkSize))
+//    mongo.getDB(database).command(MongoDBObject("chunksize" -> chunkSize))
     val t = f(system)
     system.stop()
     t

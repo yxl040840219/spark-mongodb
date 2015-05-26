@@ -18,7 +18,9 @@
 
 package com.stratio.deep.mongodb.schema
 
-import com.mongodb.casbah.Imports._
+import scala.collection.JavaConverters._
+
+import com.mongodb.{DBObject, BasicDBList}
 import com.stratio.deep.mongodb.rdd.MongodbRDD
 import com.stratio.deep.schema.DeepSchemaProvider
 import org.apache.spark.sql.catalyst.ScalaReflection
@@ -42,7 +44,10 @@ case class MongodbSchema(
 
     val structFields = schemaData.flatMap {
       dbo => {
-        val doc: Map[String, AnyRef] = dbo.seq.toMap
+
+        dbo.toMap
+//        val doc: Map[String, AnyRef] = dbo.seq.toMap (seq obtiene la secuencia de pares clave, valor)
+        val doc: Map[String, AnyRef] = dbo.toMap.asScala.map{ case (k,v: AnyRef) => (k.toString, v)}.toMap
         val fields = doc.mapValues(f => convertToStruct(f))
         fields
       }
@@ -54,13 +59,15 @@ case class MongodbSchema(
 
   private def convertToStruct(dataType: Any): DataType = dataType match {
     case bl: BasicDBList =>
-      typeOfArray(bl)
+      typeOfArray(Seq(bl))
 
     case bo: DBObject =>
-      val fields = bo.map {
-        case (k, v) =>
-          StructField(k, convertToStruct(v))
+//      val fields = bo.map {
+      val fields = bo.toMap.asScala.map {
+        case (k, v) => //k
+          StructField(k.toString, convertToStruct(v))
       }.toSeq
+
       StructType(fields)
 
     case elem =>

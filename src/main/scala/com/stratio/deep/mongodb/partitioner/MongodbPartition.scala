@@ -18,7 +18,7 @@
 
 package com.stratio.deep.mongodb.partitioner
 
-import com.mongodb.casbah.Imports._
+import com.mongodb.DBObject
 import com.stratio.deep.partitioner.DeepPartitionRange
 import org.apache.spark.Partition
 

@@ -18,7 +18,9 @@
 
 package com.stratio.deep.mongodb.schema
 
-import com.mongodb.casbah.Imports._
+//import com.mongodb.casbah.Imports._
+import scala.collection.JavaConverters._
+import com.mongodb.{BasicDBObject, BasicDBList, DBObject}
 import com.stratio.deep.schema.DeepRowConverter
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -70,11 +72,17 @@ object MongodbRowConverter extends DeepRowConverter[DBObject]
    * @param schema Schema
    * @return The converted DBObject
    */
+//  def rowAsDBObject(row: Row, schema: StructType): DBObject = {
+//    val attMap: Map[String, Any] = schema.fields.zipWithIndex.map {
+//      case (att, idx) => (att.name, toDBObject(row(idx),att.dataType))
+//    }.toMap
+//    attMap
+//  }
   def rowAsDBObject(row: Row, schema: StructType): DBObject = {
     val attMap: Map[String, Any] = schema.fields.zipWithIndex.map {
       case (att, idx) => (att.name, toDBObject(row(idx),att.dataType))
     }.toMap
-    attMap
+    new BasicDBObject(attMap.asJava)
   }
 
   /**
@@ -111,7 +119,7 @@ object MongodbRowConverter extends DeepRowConverter[DBObject]
     Option(value).map{value =>
       dataType match {
         case ArrayType(elementType, _) =>
-          value.asInstanceOf[BasicDBList].map(toSQL(_, elementType))
+          value.asInstanceOf[BasicDBList].toMap.asScala.map(toSQL(_, elementType)) //.map == toMap.asScala.map
         case struct: StructType =>
           recordAsRow(dbObjectToMap(value.asInstanceOf[DBObject]), struct)
         case _ =>
@@ -127,7 +135,7 @@ object MongodbRowConverter extends DeepRowConverter[DBObject]
    * @return A map with dbObject attributes.
    */
   def dbObjectToMap(dBObject: DBObject): Map[String, AnyRef] = {
-    dBObject.seq.toMap
+    dBObject.toMap.asScala.map{ case (k,v: AnyRef) => k.toString -> v}.toMap //dBObject.seq.toMap
   }
 
 }

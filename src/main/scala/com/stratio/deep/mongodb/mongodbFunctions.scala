@@ -18,6 +18,7 @@
 
 package com.stratio.deep.mongodb
 
+import com.mongodb.{BasicDBList, DBObject}
 import com.stratio.deep.DeepConfig
 import com.stratio.deep.mongodb.schema.MongodbRowConverter
 import com.stratio.deep.mongodb.writer.{MongodbBatchWriter, MongodbSimpleWriter}
@@ -64,7 +65,6 @@ class MongodbDataFrame(dataFrame: DataFrame) extends Serializable {
       writer.close()
     })
   }
-
 }
 
 /**
