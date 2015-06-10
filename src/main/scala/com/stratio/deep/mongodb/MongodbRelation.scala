@@ -59,7 +59,6 @@ with PrunedFilteredScan {
       new MongodbRDD(sqlContext, config, rddPartitioner),
       config[Double](MongodbConfig.SamplingRatio)).schema()
 
-  println(lazySchema)
 
   override val schema: StructType = schemaProvided.getOrElse(lazySchema)
 

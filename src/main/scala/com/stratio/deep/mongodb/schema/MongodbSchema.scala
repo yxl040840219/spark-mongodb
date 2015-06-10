@@ -44,6 +44,7 @@ case class MongodbSchema(
       dbo => {
         val doc: Map[String, AnyRef] = dbo.seq.toMap
         val fields = doc.mapValues(f => convertToStruct(f))
+        println("schema:" + fields)
         fields
       }
     }.reduceByKey(compatibleType).aggregate(Seq[StructField]())(
@@ -57,7 +58,7 @@ case class MongodbSchema(
       typeOfArray(bl)
 
     case bo: DBObject =>
-      val fields = bo.map {
+      val fields = bo.map { // 内嵌的文档也可以解析
         case (k, v) =>
           StructField(k, convertToStruct(v))
       }.toSeq
@@ -65,7 +66,7 @@ case class MongodbSchema(
 
     case elem =>
       val elemType: PartialFunction[Any, DataType] =
-        ScalaReflection.typeOfObject.orElse { case _ => StringType}
+        ScalaReflection.typeOfObject.orElse { case _ => StringType} // 判断具体的类型
       elemType(elem)
 
   }

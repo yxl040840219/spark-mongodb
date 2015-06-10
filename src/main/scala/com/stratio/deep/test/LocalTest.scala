@@ -37,7 +37,7 @@ object LocalTest {
      val mongoRDD = sqlContext.fromMongoDB(readConfig)
 
      mongoRDD.registerTempTable("user")
-     val newRDD = sqlContext.sql("SELECT sum(tags[1]) FROM user")
+     val newRDD = sqlContext.sql("SELECT sum(sub.b) FROM user")
      //newRDD.saveToMongodb(builder.build(),true)
      newRDD.foreach(println(_))
    }
