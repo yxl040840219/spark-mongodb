@@ -60,7 +60,7 @@ case class MongodbSchema(
     case bo: DBObject =>
       val fields = bo.map { // 内嵌的文档也可以解析
         case (k, v) =>
-          StructField(k, convertToStruct(v))
+          StructField(k, convertToStruct(v)) // 递归
       }.toSeq
       StructType(fields)
 

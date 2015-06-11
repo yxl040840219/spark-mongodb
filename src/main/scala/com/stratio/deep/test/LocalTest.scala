@@ -3,6 +3,7 @@ package com.stratio.deep.test
 import com.mongodb.casbah.{WriteConcern => MongodbWriteConcern}
 import com.stratio.deep.mongodb.MongodbConfig._
 import com.stratio.deep.mongodb._
+import com.stratio.deep.mongodb.writer.MongodbSimpleWriter
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -19,7 +20,7 @@ object LocalTest {
 
      val sc = new SparkContext(sparkConf);
 
-     val builder = MongodbConfigBuilder(
+     val select = MongodbConfigBuilder(
        Map(
          Host -> List("localhost:27017"),
          Database -> "test",
@@ -29,16 +30,34 @@ object LocalTest {
        )
      )
 
-     val readConfig = builder.build()
+
+
+     val write = MongodbConfigBuilder(
+       Map(
+         Host -> List("localhost:27017"),
+         Database -> "test",
+         Collection -> "result",
+         SamplingRatio -> 1.0,
+         WriteConcern -> MongodbWriteConcern.Normal
+       )
+     )
+
+     val readConfig = select.build()
+
+     val writeConfig = write.build()
 
      val sqlContext = new SQLContext(sc)
+
+
+     val writer = new MongodbSimpleWriter(writeConfig)
 
 
      val mongoRDD = sqlContext.fromMongoDB(readConfig)
 
      mongoRDD.registerTempTable("user")
-     val newRDD = sqlContext.sql("SELECT sum(sub.b) FROM user")
-     //newRDD.saveToMongodb(builder.build(),true)
+     val newRDD = sqlContext.sql("SELECT type,sum(sub.a) as t_count FROM user group by type")
+     // 写数据
+     newRDD.saveToMongodb(writeConfig,false)
      newRDD.foreach(println(_))
    }
 }

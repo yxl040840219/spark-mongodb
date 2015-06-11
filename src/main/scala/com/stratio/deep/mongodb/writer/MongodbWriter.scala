@@ -58,7 +58,7 @@ abstract class MongodbWriter(config: DeepConfig) extends Serializable {
       save(it)) { pk =>
       save(it.map {
         case obj: BasicDBObject =>
-          obj.append("_id", obj.get(pk))
+          obj.append("_id", obj.get(pk)) // 插入 _id
       })
     }
   }
